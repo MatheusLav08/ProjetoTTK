@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import colorchooser
 
 # Quando mouse é pressionado
 def iniciar_figura_nova(event): 
@@ -69,6 +70,10 @@ tipo_figura_var = StringVar(root) # Guarda o tipo de figura selecionado no optio
 option_menu = ttk.OptionMenu(frame, tipo_figura_var,
                              'Linha', 'Linha', 'Rabisco')
 option_menu.grid(column=1, row=0, sticky=W, **paddings)
+
+# escolha de cores
+option_menu_color = ttk.Button(frame, text='Escolher cor', command=lambda: colorchooser.askcolor(title="Escolha a cor"))
+option_menu_color.grid(column=2, row=0, sticky=W, **paddings) 
 
 # Área de desenho
 canvas = Canvas(frame, bg='white', width=600, height=600)
