@@ -71,8 +71,8 @@ option_menu = ttk.OptionMenu(frame, tipo_figura_var,
 option_menu.grid(column=1, row=0, sticky=W, **paddings)
 
 # Área de desenho
-canvas = Canvas(frame, bg='white', width=600, height=600)
-canvas.grid(column=0, row=1, columnspan=2, sticky=W, **paddings)
+canvas = Canvas(frame, bg='white', width=1280, height=720)
+canvas.grid(column=0, row=1, columnspan=3, sticky=W, **paddings)
 
 frame.pack()
 
