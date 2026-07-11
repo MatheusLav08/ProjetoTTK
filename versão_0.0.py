@@ -2,21 +2,27 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import colorchooser
 
+cor_contorno = 'black' # cor padrão do contorno
+cor_preenchimento = 'black' # cor padrão do preenchimento
+
 # Quando mouse é pressionado
 def iniciar_figura_nova(event): 
     global figura_nova
     if tipo_figura_var.get() == 'Linha':
-        figura_nova = ("linha", (event.x, event.y, event.x, event.y))
+        figura_nova = ("linha", (event.x, event.y, event.x, event.y), cor_preenchimento, cor_contorno)
     else :
-        figura_nova = ("rabisco", [(event.x, event.y)])
+        figura_nova = ("rabisco", [(event.x, event.y)], cor_preenchimento, cor_contorno )
 
 # Quando mouse é movido com o botão pressionado
 def atualizar_figura_nova(event):
     global figura_nova
+    tipo, valores, c_contorno, c_preench = figura_nova
+    
     if figura_nova[0] == "rabisco":
         figura_nova[1].append((event.x, event.y))
+        figura_nova = (tipo, valores, c_contorno, c_preench)
     else : # figura_nova[0] == "linha"
-        figura_nova = ("linha", (figura_nova[1][0], figura_nova[1][1], event.x, event.y))
+        figura_nova = ("linha", (figura_nova[1][0], figura_nova[1][1], event.x, event.y), c_contorno, c_preench)
     desenhar_figuras()
     desenhar_figura_nova()
 
@@ -28,26 +34,35 @@ def incluir_figura_nova(event):
 
 def desenhar_figuras():
     canvas.delete("all")
-    for fig, values in figuras:
+    for fig, values, c_contorno, c_preench in figuras:
         if fig == "linha":
-            canvas.create_line(values[0], values[1], values[2], values[3])
+            canvas.create_line(values[0], values[1], values[2], values[3], fill = c_contorno)
         else : # fig == "rabisco"
-            canvas.create_line(values)
+            canvas.create_line(values, fill = c_contorno)
 
 def desenhar_figura_nova():
-    fig, values = figura_nova
+    fig, values, c_contorno, c_preench = figura_nova
     if fig == "linha":
-        canvas.create_line(values[0], values[1], values[2], values[3], dash=(4, 2))
+        canvas.create_line(values[0], values[1], values[2], values[3], dash=(4, 2), fill = c_contorno)
     else : # fig == "rabisco"
-        canvas.create_line(values, dash=(4, 2))
+        canvas.create_line(values, dash=(4, 2), fill = c_contorno)
 
 def incompleta(figura):
-    fig, values = figura
+    fig, values, _, _ = figura
     if fig == "linha":
         return (values[0], values[1]) == (values[2], values[3])
     else : # fig == "rabisco"
         return len(values) <= 1
-    
+
+# escolha de cores
+def mudar_cor(modo):
+    global cor_contorno, cor_preenchimento
+    cor = colorchooser.askcolor(title="Escolha a cor")
+    if cor[1]: 
+        if modo == "contorno":
+            cor_contorno = cor[1]
+        elif modo == "preenchimento":
+            cor_preenchimento = cor[1]
 
 
 #******* MAIN *******#
@@ -71,18 +86,15 @@ option_menu = ttk.OptionMenu(frame, tipo_figura_var,
                              'Linha', 'Linha', 'Rabisco')
 option_menu.grid(column=1, row=0, sticky=W, **paddings)
 
-# escolha de cores
-def mudar_cor():
-    cor = colorchooser.askcolor(title="Escolha a cor")
-    if cor[1] is not None:
-        canvas.config(bg=cor[1])
-
-option_menu_color = ttk.Button(frame, text='Escolher cor', command=mudar_cor)
+#botões de escolha de cor
+option_menu_color_outline = ttk.Button(frame, text='Escolher cor de cortorno', command=lambda: mudar_cor("contorno"))
+option_menu_color_fill = ttk.Button(frame, text='Escolher cor de preenchimento', command=lambda: mudar_cor("preenchimento"))
+option_menu_color_outline.grid(column=2, row=0, sticky=W, **paddings)
+option_menu_color_fill.grid(column=3, row=0, sticky=W, **paddings)
 
 # Área de desenho
-canvas = Canvas(frame, bg='white', width=600, height=600)
-canvas.grid(column=0, row=1, columnspan=2, sticky=W, **paddings)
-option_menu_color.grid(column=2, row=0, sticky=W, **paddings)
+canvas = Canvas(frame, bg='white', width=1280, height=720)
+canvas.grid(column=0, row=1, columnspan=4, sticky=W, **paddings)
 
 frame.pack()
 
