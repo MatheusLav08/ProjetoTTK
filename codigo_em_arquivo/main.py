@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter import ttk, colorchooser
 
 # Importa as classes e funções necessárias do nosso módulo local
-from figuras import Linha, Rabisco, Retângulo, Círculo, Oval, Poligono
+from model import Linha, Rabisco, Retângulo, Círculo, Oval, Poligono
 # Função auxiliar para o fechamento do polígono baseado na distância do ponto inicial
 def perto_do_inicio(ponto, inicio, tol=30):
     return ((ponto[0] - inicio[0]) ** 2 + (ponto[1] - inicio[1]) ** 2) ** 0.5 <= tol
