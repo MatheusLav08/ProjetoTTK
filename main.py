@@ -1,8 +1,8 @@
 # main.py - Ponto de entrada do programa (padrão MVC)
 from tkinter import Tk
 
-from View.view import PaintView
-from Controller.controller import PaintController
+from Visão.view import PaintView
+from Controlador.controller import PaintController
 
 
 

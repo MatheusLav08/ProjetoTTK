@@ -1,5 +1,5 @@
 # controller.py - Controlador (Orquestra modelo e visão)
-from Model.model import (
+from Modelo.model import (
     Linha, Rabisco, Retângulo, Círculo, Oval, Poligono
 )
 
