@@ -3,7 +3,7 @@ from tkinter import Tk
 
 from View.view import PaintView
 from Controller.controller import PaintController
-from Model.model import Linha, Rabisco, Retângulo, Oval, Círculo, Poligono
+
 
 
 
