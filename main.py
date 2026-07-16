@@ -1,8 +1,10 @@
 # main.py - Ponto de entrada do programa (padrão MVC)
 from tkinter import Tk
 
-from view import PaintView
-from controller import PaintController
+from View.view import PaintView
+from Controller.controller import PaintController
+from Model.model import Linha, Rabisco, Retângulo, Oval, Círculo, Poligono
+
 
 
 def main():
