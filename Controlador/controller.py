@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from Modelo.model import (
-    Linha, Rabisco, Retângulo, Círculo, Oval, Poligono
+    Linha, Rabisco, Retângulo, Círculo, Oval, Poligono,
+    salvar_para_arquivo, carregar_de_arquivo
 )
 
 # =====================================================================
@@ -224,6 +225,31 @@ class PaintController:
         cor = self.view.obter_cor_da_paleta()
         if cor:
             self.cor_preenchimento = cor
+
+    def salvar_desenho(self):
+        """Pede um caminho de arquivo à view e delega ao model salvar o desenho atual nele"""
+        caminho = self.view.perguntar_caminho_para_salvar()
+        if not caminho:
+            return  # usuário cancelou o diálogo
+        try:
+            salvar_para_arquivo(caminho, self.figuras)
+            self.view.mostrar_info('Salvar desenho', 'Desenho salvo com sucesso!')
+        except Exception as erro:
+            self.view.mostrar_erro('Erro ao salvar', f'Não foi possível salvar o desenho:\n{erro}')
+
+    def carregar_desenho(self):
+        """Pede um caminho de arquivo à view e delega ao model carregar o desenho a partir dele"""
+        caminho = self.view.perguntar_caminho_para_abrir()
+        if not caminho:
+            return  # usuário cancelou o diálogo
+        try:
+            self.figuras = carregar_de_arquivo(caminho)
+            self.figura_nova = None
+            self.ponto_previo_poligono = None
+            self._desenhar()
+            self.view.mostrar_info('Carregar desenho', 'Desenho carregado com sucesso!')
+        except Exception as erro:
+            self.view.mostrar_erro('Erro ao carregar', f'Não foi possível carregar o desenho:\n{erro}')
 
  
 

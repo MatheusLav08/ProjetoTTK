@@ -1,6 +1,6 @@
 # view.py
 from tkinter import *
-from tkinter import ttk, colorchooser
+from tkinter import ttk, colorchooser, filedialog, messagebox
 
 class PaintView:
     def __init__(self, root, controller):
@@ -30,6 +30,12 @@ class PaintView:
         self.btn_outline.grid(column=2, row=0, sticky=W, **self.paddings)
         self.btn_fill.grid(column=3, row=0, sticky=W, **self.paddings)
 
+        # Botões de salvar/carregar desenho
+        self.btn_salvar = ttk.Button(self.frame, text='Salvar Desenho', command=self.controller.salvar_desenho)
+        self.btn_carregar = ttk.Button(self.frame, text='Carregar Desenho', command=self.controller.carregar_desenho)
+        self.btn_salvar.grid(column=4, row=0, sticky=W, **self.paddings)
+        self.btn_carregar.grid(column=5, row=0, sticky=W, **self.paddings)
+
         # Canvas
         self.canvas = Canvas(self.frame, bg='white', width=1280, height=720)
         self.canvas.grid(column=0, row=1, columnspan=4, sticky=W, **self.paddings)
@@ -41,6 +47,27 @@ class PaintView:
     def obter_cor_da_paleta(self):
         cor = colorchooser.askcolor(title='Escolha a cor')
         return cor[1]
+
+    def perguntar_caminho_para_salvar(self):
+        """Abre o diálogo 'Salvar como' e retorna o caminho escolhido (ou '' se cancelado)."""
+        return filedialog.asksaveasfilename(
+            title='Salvar desenho',
+            defaultextension='.json',
+            filetypes=[('Arquivo de desenho (JSON)', '*.json'), ('Todos os arquivos', '*.*')],
+        )
+
+    def perguntar_caminho_para_abrir(self):
+        """Abre o diálogo 'Abrir arquivo' e retorna o caminho escolhido (ou '' se cancelado)."""
+        return filedialog.askopenfilename(
+            title='Carregar desenho',
+            filetypes=[('Arquivo de desenho (JSON)', '*.json'), ('Todos os arquivos', '*.*')],
+        )
+
+    def mostrar_info(self, titulo, mensagem):
+        messagebox.showinfo(titulo, mensagem)
+
+    def mostrar_erro(self, titulo, mensagem):
+        messagebox.showerror(titulo, mensagem)
 
     def limpar_canvas(self):
         self.canvas.delete('all')

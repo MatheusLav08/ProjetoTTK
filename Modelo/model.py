@@ -1,3 +1,5 @@
+# model.py
+import json
 from abc import ABC
 
 # --- Funções matemáticas de suporte (Regra de Negócio) ---
@@ -90,3 +92,81 @@ class DesenhoModel:
         self.ponto_previo_poligono = None
         self.cor_contorno = '#000000'
         self.cor_preenchimento = ''
+
+
+# --- Persistência do Desenho (salvar / carregar em arquivo) ---
+
+def figura_para_dicionario(figura):
+    """Converte um objeto de figura em um dicionário simples (serializável em JSON)."""
+    nome = type(figura).__name__
+    if nome == 'Rabisco':
+        dados = {'lista': list(figura.lista)}
+    elif nome == 'Círculo':
+        dados = {'valor_x': figura.valor_x, 'valor_y': figura.valor_y, 'raio': figura.raio}
+    elif nome == 'Poligono':
+        dados = {'pontos': [list(ponto) for ponto in figura.pontos]}
+    else:  # Linha, Retângulo, Oval
+        dados = {
+            'valor_x': figura.valor_x, 'valor_y': figura.valor_y,
+            'valor_xf': figura.valor_xf, 'valor_yf': figura.valor_yf,
+        }
+    return {'tipo': nome, 'dados': dados}
+
+
+def dicionario_para_figura(item):
+    """Reconstrói um objeto de figura a partir do dicionário salvo em arquivo."""
+    nome = item.get('tipo')
+    dados = item.get('dados', {})
+
+    if nome == 'Rabisco':
+        return Rabisco(list(dados['lista']))
+    elif nome == 'Círculo':
+        return Círculo(dados['valor_x'], dados['valor_y'], dados['raio'])
+    elif nome == 'Poligono':
+        pontos = [tuple(ponto) for ponto in dados['pontos']]
+        return Poligono(pontos)
+    elif nome == 'Linha':
+        return Linha(dados['valor_x'], dados['valor_y'], dados['valor_xf'], dados['valor_yf'])
+    elif nome == 'Retângulo':
+        return Retângulo(dados['valor_x'], dados['valor_y'], dados['valor_xf'], dados['valor_yf'])
+    elif nome == 'Oval':
+        return Oval(dados['valor_x'], dados['valor_y'], dados['valor_xf'], dados['valor_yf'])
+
+    raise ValueError(f'Tipo de figura desconhecido no arquivo: {nome!r}')
+
+
+def salvar_para_arquivo(caminho, figuras):
+    """
+    Salva a lista de figuras no formato usado pelo app -
+    [(figura, cor_contorno, cor_preenchimento), ...] - em um arquivo JSON.
+    """
+    conteudo = {
+        'versao': 1,
+        'figuras': [
+            {
+                **figura_para_dicionario(figura),
+                'cor_contorno': cor_contorno,
+                'cor_preenchimento': cor_preenchimento,
+            }
+            for figura, cor_contorno, cor_preenchimento in figuras
+        ],
+    }
+    with open(caminho, 'w', encoding='utf-8') as arquivo:
+        json.dump(conteudo, arquivo, ensure_ascii=False, indent=2)
+
+
+def carregar_de_arquivo(caminho):
+    """
+    Lê um arquivo JSON salvo por salvar_para_arquivo e retorna a lista de
+    figuras no formato [(figura, cor_contorno, cor_preenchimento), ...].
+    """
+    with open(caminho, 'r', encoding='utf-8') as arquivo:
+        conteudo = json.load(arquivo)
+
+    figuras = []
+    for item in conteudo.get('figuras', []):
+        figura = dicionario_para_figura(item)
+        cor_contorno = item.get('cor_contorno', '#000000')
+        cor_preenchimento = item.get('cor_preenchimento', '')
+        figuras.append((figura, cor_contorno, cor_preenchimento))
+    return figuras
