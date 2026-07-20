@@ -150,5 +150,81 @@ class EstadoPoligono(EstadoFerramenta):
                     controller.figuras.append((fig, controller.cor_contorno, controller.cor_preenchimento))
             controller.figura_nova = None
             controller.ponto_previo_poligono = None
+# =====================================================================
+# 3. O CONTEXTO (PaintController)
+# =====================================================================
+class PaintController:
+    def __init__(self, view):
+        self.view = view
+        self.figuras = []
+        self.figura_nova = None
+        self.ponto_previo_poligono = None
+        self.cor_contorno = '#000000'
+        self.cor_preenchimento = ''
+        
+        # Mapeamento estático de strings para classes de estado
+        self._estados = {
+            'Linha': EstadoLinha(),
+            'Rabisco': EstadoRabisco(),
+            'Retângulo': EstadoRetangulo(),
+            'Oval': EstadoOval(),
+            'Círculo (Centro)': EstadoCirculo(),
+            'Polígono': EstadoPoligono()
+        }
+        
+        self._conectar_eventos()
+    
+    def _obter_estado_atual(self):
+        """Busca dinamicamente o estado com base na seleção da View"""
+        ferramenta = self.view.obter_ferramenta_selecionada()
+        return self._estados.get(ferramenta, EstadoLinha())
+    
+    def _conectar_eventos(self):
+        """Conecta os eventos do mouse ao canvas"""
+        self.view.canvas.bind('<ButtonPress-1>', self._mouse_press)
+        self.view.canvas.bind('<B1-Motion>', self._mouse_motion)
+        self.view.canvas.bind('<ButtonRelease-1>', self._mouse_release)
+        self.view.canvas.bind('<Double-Button-1>', self._finalizar_poligono)
+        self.view.canvas.focus_set()
+        self.view.root.bind('<Return>', self._finalizar_poligono)
+    
+    # Delegando comportamentos para o estado atual
+    def _mouse_press(self, event):
+        estado = self._obter_estado_atual()
+        estado.mouse_press(self, event)
+        self._desenhar()
+    
+    def _mouse_motion(self, event):
+        estado = self._obter_estado_atual()
+        estado.mouse_motion(self, event)
+        self._desenhar()
+    
+    def _mouse_release(self, event):
+        estado = self._obter_estado_atual()
+        estado.mouse_release(self, event)
+        self._desenhar()
+    
+    def _finalizar_poligono(self, event=None):
+        estado = self._obter_estado_atual()
+        estado.finalizar_poligono(self, event)
+        self._desenhar()
+    
+    def _desenhar(self):
+        """Limpa canvas e redesenha todas as figuras"""
+        self.view.limpar_canvas()
+        self.view.desenhar_figuras_salvas(self.figuras)
+        self.view.desenhar_figura_temporaria(self.figura_nova, self.ponto_previo_poligono)
+    
+    def mudar_cor_contorno(self):
+        cor = self.view.obter_cor_da_paleta()
+        if cor:
+            self.cor_contorno = cor
+    
+    def mudar_cor_preenchimento(self):
+        cor = self.view.obter_cor_da_paleta()
+        if cor:
+            self.cor_preenchimento = cor
+
+ 
 
 
